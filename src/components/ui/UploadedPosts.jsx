@@ -76,7 +76,7 @@ const UploadedPosts = () => {
   };
 
   const handleShare = (itemId) => {
-    const shareUrl = `http://localhost:5173/post/${itemId}`;
+    const shareUrl = `${window.location.origin}/post/${itemId}`;
     console.log("Share URL:", shareUrl);
 
     if (navigator.share) {
