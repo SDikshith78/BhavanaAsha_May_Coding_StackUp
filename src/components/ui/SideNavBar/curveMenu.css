@@ -1,0 +1,73 @@
+.menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 30%;
+  background-color: #292929;
+  color: white;
+  display: flex;
+  z-index: 9999;
+}
+
+.svgCurve {
+  position: absolute;
+  top: 0;
+  left: -99px; /* Positioning from the left */
+  width: 100px; /* Adjust this value to make it take 40-50% of the screen width */
+  height: 100%;
+  fill: rgb(41, 41, 41);
+  stroke: none;
+  z-index: 10; 
+}
+
+
+.menu-content {
+  width: 100%;
+  padding: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  font-size: 56px;
+  gap: 12px;
+  margin-top: 80px;
+}
+
+.nav-header {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #999;
+  border-bottom: 1px solid #999;
+  margin-bottom: 40px;
+}
+
+.nav a {
+  color: white;
+  text-decoration: none;
+}
+
+.footer {
+  display: flex;
+  gap: 40px;
+  font-size: 12px;
+}
+
+.burger-container {
+  background-color: #38bdf8;
+  border-radius: 9999px;
+  height: 80px;
+  width: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 21px;
+  right: 28px;
+  z-index: 10000;
+}

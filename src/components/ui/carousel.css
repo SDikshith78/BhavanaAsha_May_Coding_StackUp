@@ -1,0 +1,126 @@
+/* Card styling */
+.card {
+  height: 40vh;
+  width: 40vw;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* Swiper slide adjustments */
+.swiper-slide {
+  overflow: visible !important;
+}
+
+.swiper-slide-active .card {
+  width: 42vw !important;
+  transform: scale(1.2);
+  transition: transform 0.3s ease, width 0.3s ease;
+}
+
+.swiper-slide:not(.swiper-slide-active) .card {
+  opacity: 1;
+  transform: scale(0.8);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  border-radius: 8px;
+  height: 55vh;
+  position: relative;
+  top: -55px;
+}
+
+/* Text container and content */
+.text-container {
+  position: relative;
+  z-index: 10;
+  width: 110%;
+  padding: 1rem;
+  border-radius: 8px;
+  transition: visibility 0.3s ease;
+  color: white;
+}
+
+.text-container-card {
+  position: relative;
+  bottom: 5.5rem;
+  left: -7px;
+  visibility: hidden;
+}
+
+.swiper-slide-active .text-container-card {
+  visibility: visible;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-align: left;
+  margin-bottom: 0.5rem;
+}
+
+.journal {
+  font-size: 1.1rem;
+  font-weight: 600;
+  opacity: 1;
+  text-align: left;
+  padding: 0 10px;
+  line-height: 7rem;
+  color: rgb(0, 0, 0);
+  width: 105%;
+  border-radius: 20px;
+}
+
+
+
+/* Navigation arrows */
+.swiper-button-prev,
+.swiper-button-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)) !important;
+}
+
+.swiper-button-prev {
+  left: 1rem;
+}
+
+.swiper-button-next {
+  right: 1rem;
+}
+
+/* Pagination */
+.swiper-pagination-bullet {
+  background: white !important;
+  opacity: 0.5 !important;
+  width: 10px !important;
+  height: 10px !important;
+  margin: 0 5px !important;
+}
+
+.swiper-pagination-bullet-active {
+  opacity: 1 !important;
+  background: white !important;
+}
+
+/* Disable Swiper shadows */
+.swiper-3d .swiper-slide-shadow-left,
+.swiper-3d .swiper-slide-shadow-right,
+.swiper-3d .swiper-slide-shadow-coverflow {
+  display: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
+}
+
+/* E:\bhavana-asha\src\index.css or E:\bhavana-asha\src\components\MoodMusic.css */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 4s linear infinite; /* Adjust duration (4s) for desired speed */
+}
