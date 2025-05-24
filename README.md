@@ -98,6 +98,7 @@ This project is a soulful blend of design, performance, and purpose, inspired by
 
 2. **Photos**  
    - Browse all uploaded images
+    
 
 3. **Videos**  
    - Browse all uploaded videos
@@ -109,6 +110,8 @@ This project is a soulful blend of design, performance, and purpose, inspired by
 
 5. **Lofi Music**  
    - Relaxing background music for a calming experience
+
+-- This posts you can like and share it top. In sharing link copy the link when you get pop screen and option will be their to copy.
 
 6. **Quotes**  
    - Daily quotes to inspire hope and emotional resilience
