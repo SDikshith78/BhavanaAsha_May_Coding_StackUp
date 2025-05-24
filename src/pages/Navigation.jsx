@@ -37,10 +37,34 @@ const Navigation = () => {
   const [quoteError, setQuoteError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Static list of 20 quotes
+  const quotes = [
+    { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+    { text: "Life is what happens when you're busy making other plans.", author: "John Lennon" },
+    { text: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
+    { text: "You miss 100% of the shots you don't take.", author: "Wayne Gretzky" },
+    { text: "The best way to predict the future is to create it.", author: "Peter Drucker" },
+    { text: "Do not wait to strike till the iron is hot; but make it hot by striking.", author: "William Butler Yeats" },
+    { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+    { text: "The journey of a thousand miles begins with one step.", author: "Lao Tzu" },
+    { text: "What you get by achieving your goals is not as important as what you become by achieving your goals.", author: "Zig Ziglar" },
+    { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+    { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+    { text: "The only limit to our realization of tomorrow will be our doubts of today.", author: "Franklin D. Roosevelt" },
+    { text: "You must be the change you wish to see in the world.", author: "Mahatma Gandhi" },
+    { text: "To handle yourself, use your head; to handle others, use your heart.", author: "Eleanor Roosevelt" },
+    { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+    { text: "Happiness is not something ready made. It comes from your own actions.", author: "Dalai Lama" },
+    { text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author: "Aristotle" },
+    { text: "The greatest glory in living lies not in never falling, but in rising every time we fall.", author: "Nelson Mandela" },
+    { text: "If you want to lift yourself up, lift up someone else.", author: "Booker T. Washington" },
+    { text: "Dream big and dare to fail.", author: "Norman Vaughan" },
+  ];
+
   const fetchQuote = async () => {
     setIsLoading(true);
     setQuoteError(null);
-    console.log("Fetching quote...");
+    console.log("Selecting quote...");
 
     const storedQuote = localStorage.getItem("currentQuote");
     const storedTime = localStorage.getItem("quoteTime");
@@ -53,28 +77,21 @@ const Navigation = () => {
     }
 
     try {
-      console.log("Requesting quote from https://corsproxy.io/?https://zenquotes.io/api/random");
-      const response = await fetch("https://corsproxy.io/?https://zenquotes.io/api/random");
-      console.log("Response status:", response.status, response.statusText);
-      if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
-      }
-      const data = await response.json();
-      console.log("Quote data:", data);
-      const selectedQuote = data[0];
-      if (!selectedQuote || !selectedQuote.q) {
+      const randomIndex = Math.floor(Math.random() * quotes.length);
+      const selectedQuote = quotes[randomIndex];
+      console.log("Selected quote:", selectedQuote);
+      if (!selectedQuote.text) {
         throw new Error("Invalid quote data");
       }
-      const newQuote = { text: selectedQuote.q, author: selectedQuote.a || "Unknown" };
+      const newQuote = { text: selectedQuote.text, author: selectedQuote.author };
       setQuote(newQuote);
       localStorage.setItem("currentQuote", JSON.stringify(newQuote));
       localStorage.setItem("quoteTime", new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
       console.log("Quote saved:", newQuote);
     } catch (err) {
-      console.error("Quote fetch error:", {
+      console.error("Quote selection error:", {
         message: err.message,
         stack: err.stack,
-        url: "https://corsproxy.io/?https://zenquotes.io/api/random",
         time: new Date().toISOString(),
       });
       setQuoteError("Failed to load quote. Please try again later.");
