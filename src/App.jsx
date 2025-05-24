@@ -10,7 +10,6 @@ import AIVideoEdit from "./pages/AIVideoEdit";
 import { Toaster } from "react-hot-toast";
 import { supabase } from "./components/supabase/supabase";
 
-
 export default function App() {
   const [session, setSession] = useState(null);
   // const [isLoading, setIsLoading] = useState(!sessionStorage.getItem("hasLoaded"));
@@ -50,6 +49,14 @@ export default function App() {
   return (
     <Router>
       <div className="overflow-hidden">
+        <div className="fixed top-4 left-6 z-50">
+          <img
+            src="/assets/logo/Bhavana_Asha_logo.png"
+            alt="Logo"
+            className="w-25 h-auto"
+          />
+        </div>
+
         <Toaster position="top-right" reverseOrder={false} />
         <div className="relative z-10">
           <Navigation session={session} />
