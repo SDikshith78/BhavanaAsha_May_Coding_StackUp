@@ -53,20 +53,19 @@ const Navigation = () => {
     }
 
     try {
-      console.log("Requesting quote from https://type.fit/api/quotes");
-      const response = await fetch("https://type.fit/api/quotes");
+      console.log("Requesting quote from https://corsproxy.io/?https://zenquotes.io/api/random");
+      const response = await fetch("https://corsproxy.io/?https://zenquotes.io/api/random");
       console.log("Response status:", response.status, response.statusText);
       if (!response.ok) {
         throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
       }
       const data = await response.json();
       console.log("Quote data:", data);
-      const randomIndex = Math.floor(Math.random() * data.length);
-      const selectedQuote = data[randomIndex];
-      if (!selectedQuote.text) {
+      const selectedQuote = data[0];
+      if (!selectedQuote || !selectedQuote.q) {
         throw new Error("Invalid quote data");
       }
-      const newQuote = { text: selectedQuote.text, author: selectedQuote.author || "Unknown" };
+      const newQuote = { text: selectedQuote.q, author: selectedQuote.a || "Unknown" };
       setQuote(newQuote);
       localStorage.setItem("currentQuote", JSON.stringify(newQuote));
       localStorage.setItem("quoteTime", new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
@@ -75,7 +74,7 @@ const Navigation = () => {
       console.error("Quote fetch error:", {
         message: err.message,
         stack: err.stack,
-        url: "https://type.fit/api/quotes",
+        url: "https://corsproxy.io/?https://zenquotes.io/api/random",
         time: new Date().toISOString(),
       });
       setQuoteError("Failed to load quote. Please try again later.");
