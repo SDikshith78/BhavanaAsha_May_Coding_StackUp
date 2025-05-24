@@ -12,6 +12,7 @@ const isQuoteExpired = (lastQuoteTime) => {
   const now = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
   const lastTime = new Date(lastQuoteTime).toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
   const hoursDiff = (new Date(now) - new Date(lastTime)) / (1000 * 60 * 60);
+  console.log("Quote expiration check:", { now, lastTime, hoursDiff });
   return hoursDiff >= 12;
 };
 
@@ -39,40 +40,50 @@ const Navigation = () => {
   const fetchQuote = async () => {
     setIsLoading(true);
     setQuoteError(null);
+    console.log("Fetching quote...");
 
     const storedQuote = localStorage.getItem("currentQuote");
     const storedTime = localStorage.getItem("quoteTime");
 
     if (storedQuote && storedTime && !isQuoteExpired(storedTime)) {
+      console.log("Using cached quote:", storedQuote);
       setQuote(JSON.parse(storedQuote));
       setIsLoading(false);
       return;
     }
 
-    // Retry logic
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        const response = await fetch("https://corsproxy.io/?https://zenquotes.io/api/random");
-        if (!response.ok) throw new Error(`ZenQuotes failed (attempt ${attempt})`);
-        const data = await response.json();
-        const selectedQuote = data[0];
-        if (selectedQuote && selectedQuote.q) {
-          const newQuote = { text: selectedQuote.q, author: selectedQuote.a };
-          setQuote(newQuote);
-          localStorage.setItem("currentQuote", JSON.stringify(newQuote));
-          localStorage.setItem("quoteTime", new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-          setIsLoading(false);
-          return;
-        }
-      } catch (err) {
-        console.error(`Quote API error (attempt ${attempt}):`, err);
-        if (attempt === 3) {
-          setQuoteError("Failed to load quote. Please try again later.");
-          setQuote(null);
-        }
+    try {
+      console.log("Requesting quote from https://api.quotable.io/random");
+      const response = await fetch("https://api.quotable.io/random?maxLength=100");
+      console.log("Response status:", response.status, response.statusText);
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
       }
+      const data = await response.json();
+      console.log("Quote data:", data);
+      if (!data.content || !data.author) {
+        throw new Error("Invalid quote data");
+      }
+      const newQuote = { text: data.content, author: data.author };
+      setQuote(newQuote);
+      localStorage.setItem("currentQuote", JSON.stringify(newQuote));
+      localStorage.setItem("quoteTime", new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+      console.log("Quote saved:", newQuote);
+    } catch (err) {
+      console.error("Quote fetch error:", {
+        message: err.message,
+        stack: err.stack,
+        url: "https://api.quotable.io/random",
+        time: new Date().toISOString(),
+      });
+      setQuoteError("Failed to load quote. Please try again later.");
+      setQuote(null);
+      localStorage.removeItem("currentQuote");
+      localStorage.removeItem("quoteTime");
+      console.log("Cleared localStorage due to error");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -81,7 +92,7 @@ const Navigation = () => {
 
   const openQuoteModal = () => {
     setIsQuoteOpen(true);
-    fetchQuote(); // Refetch on click to ensure fresh quote
+    fetchQuote(); // Refetch on click
   };
 
   const closeQuoteModal = () => {
@@ -106,7 +117,7 @@ const Navigation = () => {
     },
     {
       title: "AI Video Edit",
-      icon: <img src="/assets/Navbar Icons/AI-Video-Edit.png" alt="" className="invert max-w-8" />,
+      icon: <img src="/assets/Navbar Icons/AI-Video-Edit.png" alt="AI Video Edit" className="invert max-w-8" />,
       href: `${baseUrl}/ai-video-edit`,
     },
     {
