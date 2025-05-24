@@ -11,16 +11,20 @@ const isQuoteExpired = (lastQuoteTime) => {
   if (!lastQuoteTime) return true;
   const now = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
   const lastTime = new Date(lastQuoteTime).toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-  const hoursDiff = (new Date(now) - new Date(lastTime)) / (1000 * 60 * 60);
-  console.log("Quote expiration check:", { now, lastTime, hoursDiff });
+  const hoursDiff = (new Date(now) - new Date(lastTime)) / (1000 * 60 * 60); // Convert ms to hours
   return hoursDiff >= 12;
 };
 
 const QuoteIcon = ({ onClick }) => {
   const [hovered, setHovered] = useState(false);
+
   return (
     <img
-      src={hovered ? "/assets/Navbar Icons/Quote2.png" : "/assets/Navbar Icons/Quote1.png"}
+      src={
+        hovered
+          ? "/assets/Navbar Icons/Quote2.png"
+          : "/assets/Navbar Icons/Quote1.png"
+      }
       alt="Quote of the day"
       className="max-w-14 cursor-pointer"
       onMouseEnter={() => setHovered(true)}
@@ -37,62 +41,47 @@ const Navigation = () => {
   const [quoteError, setQuoteError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchQuote = async () => {
-    setIsLoading(true);
-    setQuoteError(null);
-    console.log("Fetching quote...");
-
-    const storedQuote = localStorage.getItem("currentQuote");
-    const storedTime = localStorage.getItem("quoteTime");
-
-    if (storedQuote && storedTime && !isQuoteExpired(storedTime)) {
-      console.log("Using cached quote:", storedQuote);
-      setQuote(JSON.parse(storedQuote));
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      console.log("Requesting quote from https://api.quotable.io/random");
-      const response = await fetch("https://api.quotable.io/random?maxLength=100");
-      console.log("Response status:", response.status, response.statusText);
-      if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
-      }
-      const data = await response.json();
-      console.log("Quote data:", data);
-      if (!data.content || !data.author) {
-        throw new Error("Invalid quote data");
-      }
-      const newQuote = { text: data.content, author: data.author };
-      setQuote(newQuote);
-      localStorage.setItem("currentQuote", JSON.stringify(newQuote));
-      localStorage.setItem("quoteTime", new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-      console.log("Quote saved:", newQuote);
-    } catch (err) {
-      console.error("Quote fetch error:", {
-        message: err.message,
-        stack: err.stack,
-        url: "https://api.quotable.io/random",
-        time: new Date().toISOString(),
-      });
-      setQuoteError("Failed to load quote. Please try again later.");
-      setQuote(null);
-      localStorage.removeItem("currentQuote");
-      localStorage.removeItem("quoteTime");
-      console.log("Cleared localStorage due to error");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchQuote = async () => {
+      setIsLoading(true);
+      setQuoteError(null);
+
+      const storedQuote = localStorage.getItem("currentQuote");
+      const storedTime = localStorage.getItem("quoteTime");
+
+      if (storedQuote && storedTime && !isQuoteExpired(storedTime)) {
+        setQuote(JSON.parse(storedQuote));
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch("https://zenquotes.io/api/quotes/");
+        if (!response.ok) throw new Error("Failed to fetch quote");
+        const data = await response.json();
+        const randomIndex = Math.floor(Math.random() * data.length);
+        const selectedQuote = data[randomIndex];
+        const newQuote = { text: selectedQuote.q, author: selectedQuote.a };
+        setQuote(newQuote);
+        localStorage.setItem("currentQuote", JSON.stringify(newQuote));
+        localStorage.setItem(
+          "quoteTime",
+          new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+        );
+      } catch (err) {
+        console.error("Quote API error:", err);
+        setQuoteError("Failed to load quote. Please try again later.");
+        setQuote(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchQuote();
   }, []);
 
   const openQuoteModal = () => {
     setIsQuoteOpen(true);
-    fetchQuote(); // Refetch on click
   };
 
   const closeQuoteModal = () => {
@@ -102,23 +91,51 @@ const Navigation = () => {
   const links = [
     {
       title: "Home",
-      icon: <FontAwesomeIcon icon={faHouse} className="text-neutral-500 dark:text-neutral-300" style={{ fontSize: "1.4em" }} />,
+      icon: (
+        <FontAwesomeIcon
+          icon={faHouse}
+          className="text-neutral-500 dark:text-neutral-300"
+          style={{ fontSize: "1.4em" }}
+        />
+      ),
       href: "/",
+      target: "_blank",
     },
     {
       title: "Photos",
-      icon: <FontAwesomeIcon icon={faImage} className="text-neutral-500 dark:text-neutral-300" style={{ fontSize: "1.4em" }} />,
+      icon: (
+        <FontAwesomeIcon
+          icon={faImage}
+          className="text-neutral-500 dark:text-neutral-300"
+          style={{ fontSize: "1.4em" }}
+        />
+      ),
       href: `${baseUrl}/photos`,
+      target: "_blank",
     },
     {
       title: "Videos",
-      icon: <FontAwesomeIcon icon={faPlay} className="text-neutral-500 dark:text-neutral-300" style={{ fontSize: "1.4em" }} />,
+      icon: (
+        <FontAwesomeIcon
+          icon={faPlay}
+          className="text-neutral-500 dark:text-neutral-300"
+          style={{ fontSize: "1.4em" }}
+        />
+      ),
       href: `${baseUrl}/videos`,
+      target: "_blank",
     },
     {
       title: "AI Video Edit",
-      icon: <img src="/assets/Navbar Icons/AI-Video-Edit.png" alt="AI Video Edit" className="invert max-w-8" />,
+      icon: (
+        <img
+          src="/assets/Navbar Icons/AI-Video-Edit.png"
+          alt=""
+          className="invert max-w-8"
+        />
+      ),
       href: `${baseUrl}/ai-video-edit`,
+      target: "_blank",
     },
     {
       title: "Quote of the day",
@@ -138,29 +155,57 @@ const Navigation = () => {
       {/* Quote Modal */}
       <Transition appear show={isQuoteOpen} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={closeQuoteModal}>
-          <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
             <div className="fixed inset-0 bg-black bg-opacity-50" />
           </Transition.Child>
+
           <div className="fixed inset-0 overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4">
-              <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
                 <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-gradient-to-br from-white to-gray-100 dark:from-neutral-900 dark:to-neutral-800 p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-neutral-800 dark:text-neutral-200 mb-4">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-neutral-800 dark:text-neutral-200 mb-4"
+                  >
                     Quote of the Day
                   </Dialog.Title>
                   {isLoading ? (
-                    <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-4">Loading quote...</p>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-4">
+                      Loading quote...
+                    </p>
                   ) : quoteError ? (
                     <p className="text-sm text-red-500 mb-4">{quoteError}</p>
                   ) : quote ? (
                     <div className="mb-4">
-                      <p className="text-sm text-neutral-600 dark:text-neutral-300 italic">"{quote.text}"</p>
+                      <p className="text-sm text-neutral-600 dark:text-neutral-300 italic">
+                        "{quote.text}"
+                      </p>
                       {quote.author && (
-                        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">— {quote.author}</p>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
+                          — {quote.author}
+                        </p>
                       )}
                     </div>
                   ) : (
-                    <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-4">No quote available.</p>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-4">
+                      No quote available.
+                    </p>
                   )}
                   <div className="mt-6">
                     <button
