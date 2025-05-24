@@ -36,54 +36,52 @@ const Navigation = () => {
   const [quoteError, setQuoteError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchQuote = async () => {
-      setIsLoading(true);
-      setQuoteError(null);
+  const fetchQuote = async () => {
+    setIsLoading(true);
+    setQuoteError(null);
 
-      const storedQuote = localStorage.getItem("currentQuote");
-      const storedTime = localStorage.getItem("quoteTime");
+    const storedQuote = localStorage.getItem("currentQuote");
+    const storedTime = localStorage.getItem("quoteTime");
 
-      if (storedQuote && storedTime && !isQuoteExpired(storedTime)) {
-        setQuote(JSON.parse(storedQuote));
-        setIsLoading(false);
-        return;
-      }
+    if (storedQuote && storedTime && !isQuoteExpired(storedTime)) {
+      setQuote(JSON.parse(storedQuote));
+      setIsLoading(false);
+      return;
+    }
 
+    // Retry logic
+    for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        // Try ZenQuotes
-        let response = await fetch("https://zenquotes.io/api/random");
-        if (!response.ok) throw new Error("ZenQuotes failed");
-
-        let data = await response.json();
-        let selectedQuote = data[0]; // ZenQuotes returns array with one quote
-
-        // Fallback to Quotable if ZenQuotes fails
-        if (!selectedQuote || !selectedQuote.q) {
-          response = await fetch("https://api.quotable.io/random");
-          if (!response.ok) throw new Error("Quotable failed");
-          data = await response.json();
-          selectedQuote = { q: data.content, a: data.author };
+        const response = await fetch("https://corsproxy.io/?https://zenquotes.io/api/random");
+        if (!response.ok) throw new Error(`ZenQuotes failed (attempt ${attempt})`);
+        const data = await response.json();
+        const selectedQuote = data[0];
+        if (selectedQuote && selectedQuote.q) {
+          const newQuote = { text: selectedQuote.q, author: selectedQuote.a };
+          setQuote(newQuote);
+          localStorage.setItem("currentQuote", JSON.stringify(newQuote));
+          localStorage.setItem("quoteTime", new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+          setIsLoading(false);
+          return;
         }
-
-        const newQuote = { text: selectedQuote.q, author: selectedQuote.a };
-        setQuote(newQuote);
-        localStorage.setItem("currentQuote", JSON.stringify(newQuote));
-        localStorage.setItem("quoteTime", new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
       } catch (err) {
-        console.error("Quote API error:", err);
-        setQuoteError("Failed to load quote. Please try again later.");
-        setQuote(null);
-      } finally {
-        setIsLoading(false);
+        console.error(`Quote API error (attempt ${attempt}):`, err);
+        if (attempt === 3) {
+          setQuoteError("Failed to load quote. Please try again later.");
+          setQuote(null);
+        }
       }
-    };
+    }
+    setIsLoading(false);
+  };
 
+  useEffect(() => {
     fetchQuote();
   }, []);
 
   const openQuoteModal = () => {
     setIsQuoteOpen(true);
+    fetchQuote(); // Refetch on click to ensure fresh quote
   };
 
   const closeQuoteModal = () => {
@@ -95,25 +93,21 @@ const Navigation = () => {
       title: "Home",
       icon: <FontAwesomeIcon icon={faHouse} className="text-neutral-500 dark:text-neutral-300" style={{ fontSize: "1.4em" }} />,
       href: "/",
-      target: "_blank",
     },
     {
       title: "Photos",
       icon: <FontAwesomeIcon icon={faImage} className="text-neutral-500 dark:text-neutral-300" style={{ fontSize: "1.4em" }} />,
       href: `${baseUrl}/photos`,
-      target: "_blank",
     },
     {
       title: "Videos",
       icon: <FontAwesomeIcon icon={faPlay} className="text-neutral-500 dark:text-neutral-300" style={{ fontSize: "1.4em" }} />,
       href: `${baseUrl}/videos`,
-      target: "_blank",
     },
     {
       title: "AI Video Edit",
       icon: <img src="/assets/Navbar Icons/AI-Video-Edit.png" alt="" className="invert max-w-8" />,
       href: `${baseUrl}/ai-video-edit`,
-      target: "_blank",
     },
     {
       title: "Quote of the day",
@@ -136,7 +130,6 @@ const Navigation = () => {
           <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
             <div className="fixed inset-0 bg-black bg-opacity-50" />
           </Transition.Child>
-
           <div className="fixed inset-0 overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4">
               <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
