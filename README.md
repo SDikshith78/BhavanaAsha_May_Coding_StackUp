@@ -13,7 +13,8 @@ This project is a soulful blend of design, performance, and purpose, inspired by
 
 
 ---
--- Note: I have also included some sketch and figma PNG what's my idea and process of this project which might help.
+-- Note: I have also included some sketch folder and figma PNG folder like what's my idea and process of this project which might help.
+
 ## 📦 Dependencies
 
 ### 🔹 Media & Cloud Services
